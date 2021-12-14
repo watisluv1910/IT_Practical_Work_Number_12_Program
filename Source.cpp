@@ -12,8 +12,15 @@
 #include <stdlib.h> // for rand, srand
 #include <sstream>
 #include <utility>
+#include <signal.h>
 
 using namespace std;
+
+// function for special commands 
+// (ctrl-c, ctrl-break) treatment:
+void signalHandler(int signum) {
+	cin.clear();
+}
 
 // function that checks type error or "border crossing":
 int initializeInteger(string path = "all", int lowerBound = 0, int upperBound = 0) {
@@ -21,10 +28,17 @@ int initializeInteger(string path = "all", int lowerBound = 0, int upperBound = 
 	int integerVariable;
 	while (!isCorrect) {
 		string stringVariable;
+		cin.clear();
+		signal(SIGINT, signalHandler);
 		cin >> stringVariable;
 		isCorrect = true;
+		// special commands (ctrl-c, ctrl-break) treatment:
+		if (cin.eof()) {
+			cout << "\nYou entered a special signal.\n";
+			isCorrect = false;
+		}	
 		for (size_t i = 0; i < 128; i++) {
-			if (i < (int)'0' || i > (int)'9') {
+			if (i < (int)'0' || i >(int)'9') {
 				int found = stringVariable.find((char)i);
 				if (i != (int)'-') {
 					if (found != string::npos) {
@@ -66,8 +80,6 @@ int initializeInteger(string path = "all", int lowerBound = 0, int upperBound = 
 		}
 		else {
 			cout << "\nInitialization error.\nEnter correct value:\n";
-			cin.clear();
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		}
 	}
 	return integerVariable;
@@ -87,7 +99,8 @@ string initializeString(int maxlength) {
 		}
 		// check for unsuitable symbols (all except english alphabet):
 		for (size_t i = 0; i < 128; i++) {
-			if (!(i >= (int)'A' && i <= (int)'Z' || i >= (int)'a' && i <= (int)'z')) {
+			if (!(i >= (int)'A' && i <= (int)'Z' 
+				|| i >= (int)'a' && i <= (int)'z')) {
 				// if unsuitable symbol was found:
 				if (line.find((char)i) != string::npos) {
 					isCorrect = false;
@@ -167,7 +180,7 @@ int** transformArray(int rows, int columns, char** lettersArray) {
 	return encodingsArray; // returning a pointer to the transformed array
 }
 
-// function that performs arrays outout in console:
+// function that performs arrays output in console:
 void printArray(int rows, int columns, char** lettersArray, int** encodingsArray) {
 	cout << "\n|The original array:\t\t\t|The transformed array:\n";
 	for (int i = 0; i < rows; i++) {
@@ -186,8 +199,8 @@ void printArray(int rows, int columns, char** lettersArray, int** encodingsArray
 int main() {
 	int path;
 	// for correct recognition of russian letters in console:
-	setlocale(LC_ALL, "Russian"); 
-	// special commands (ctrl-c, ctrl-break) treatment:
+	setlocale(LC_ALL, "Russian");
+	
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD dwMode = ENABLE_PROCESSED_INPUT;
 	SetConsoleMode(hOut, dwMode);
