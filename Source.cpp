@@ -43,6 +43,7 @@ int initializeInteger(string path = "all", int lowerBound = 0, int upperBound = 
 				if (i != (int)'-') {
 					if (found != string::npos) {
 						isCorrect = false;
+						break;
 					}
 				}
 				else {
@@ -50,6 +51,7 @@ int initializeInteger(string path = "all", int lowerBound = 0, int upperBound = 
 						stringVariable.end(), (char)i) > 1)
 						|| stringVariable.length() == 1 || found > 0)) {
 						isCorrect = false;
+						break;
 					}
 				}
 			}
@@ -90,8 +92,15 @@ string initializeString(int maxlength) {
 	bool isCorrect = false;
 	while (!isCorrect) {
 		string line;
+		cin.clear();
+		signal(SIGINT, signalHandler);
 		cin >> line;
 		isCorrect = true;
+		// special commands (ctrl-c, ctrl-break) treatment:
+		if (cin.eof()) {
+			cout << "\nYou entered a special signal.\n";
+			isCorrect = false;
+		}
 		// the letters combination length can't be more 
 		// than the number of columns in array (5 according to the task):
 		if (line.length() != maxlength) {
@@ -104,6 +113,7 @@ string initializeString(int maxlength) {
 				// if unsuitable symbol was found:
 				if (line.find((char)i) != string::npos) {
 					isCorrect = false;
+					break;
 				}
 			}
 		}
@@ -112,11 +122,6 @@ string initializeString(int maxlength) {
 		}
 		else {
 			cout << "\nInitialization error.\nEnter correct value:\n";
-			cin.clear();
-			// operator >> will no longer fetch data from the stream 
-			// as it is in the wrong format:
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
 		}
 	}
 }
@@ -157,7 +162,7 @@ char** createArray(int rows, int columns, int path) {
 
 // function that sorts each subarray in descending order:
 void bubleSort(int length, int* array) {
-	for (int i = 0; i < length; i++) {
+	for (size_t i = 0; i < length; i++) {
 		for (size_t j = 0; j < length - i; j++) {
 			if (array[j] < array[j + 1]) {
 				swap(array[j], array[j + 1]);
@@ -170,9 +175,9 @@ void bubleSort(int length, int* array) {
 // with letters transformed to ASCII code:
 int** transformArray(int rows, int columns, char** lettersArray) {
 	int** encodingsArray = new int* [rows];
-	for (int i = 0; i < rows; i++) {
+	for (size_t i = 0; i < rows; i++) {
 		encodingsArray[i] = new int[columns];
-		for (int j = 0; j < columns; j++) {
+		for (size_t j = 0; j < columns; j++) {
 			encodingsArray[i][j] = (int)lettersArray[i][j];
 		}
 		bubleSort(columns, encodingsArray[i]); // sorting the subarray
@@ -183,13 +188,13 @@ int** transformArray(int rows, int columns, char** lettersArray) {
 // function that performs arrays output in console:
 void printArray(int rows, int columns, char** lettersArray, int** encodingsArray) {
 	cout << "\n|The original array:\t\t\t|The transformed array:\n";
-	for (int i = 0; i < rows; i++) {
+	for (size_t i = 0; i < rows; i++) {
 		cout << "|";
-		for (int j = 0; j < columns; j++) {
+		for (size_t j = 0; j < columns; j++) {
 			cout << lettersArray[i][j] << "\t";
 		}
 		cout << "|";
-		for (int j = 0; j < columns; j++) {
+		for (size_t j = 0; j < columns; j++) {
 			cout << encodingsArray[i][j] << "\t";
 		}
 		cout << endl;
@@ -200,10 +205,6 @@ int main() {
 	int path;
 	// for correct recognition of russian letters in console:
 	setlocale(LC_ALL, "Russian");
-	
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	DWORD dwMode = ENABLE_PROCESSED_INPUT;
-	SetConsoleMode(hOut, dwMode);
 	// introduction part:
 	cout << "Hello!\nPlease, choose how to fill the array:\n"
 		"Press <1> and <Enter> bottom, if you want "
