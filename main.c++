@@ -30,6 +30,7 @@ int initializeInteger(string path = "all", int lowerBound = 0, int upperBound = 
 		string stringVariable;
 		cin.clear();
 		signal(SIGINT, signalHandler);
+		signal(SIGBREAK, signalHandler);
 		cin >> stringVariable;
 		isCorrect = true;
 		// special commands (ctrl-c, ctrl-break) treatment:
