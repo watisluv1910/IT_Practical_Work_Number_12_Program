@@ -95,6 +95,7 @@ string initializeString(int maxlength) {
 		string line;
 		cin.clear();
 		signal(SIGINT, signalHandler);
+		signal(SIGBREAK, signalHandler);
 		cin >> line;
 		isCorrect = true;
 		// special commands (ctrl-c, ctrl-break) treatment:
